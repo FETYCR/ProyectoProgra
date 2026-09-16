@@ -15,5 +15,4 @@ public:
     void setSpecies(int newSpecies);
     bool isAlive()const;
 
-
 };
