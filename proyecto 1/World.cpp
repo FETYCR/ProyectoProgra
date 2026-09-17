@@ -1,14 +1,15 @@
 #include <iostream>
+#include <cstdlib>
 #include "World.h"
 
-World::World(int rows, int columns)
+World::World(int rows, int cols)
 {
     this->rows = rows;
-    this->columns = columns;
+    this->cols = cols;
     this->generation = 0;
 }
 
-int World::countNeighbors(int row, int column)
+int World::countNeighbors(int row, int col)
 {
     int counter = 0;
     for (int i = -1; i <= 1; i++)
@@ -16,9 +17,9 @@ int World::countNeighbors(int row, int column)
         for (int j = -1; j <= 1; j++)
         {
             int neighborRow = row + i;
-            int neighborColumn = column + j;
+            int neighborColumn = col + j;
 
-            if (neighborRow >= 0 && neighborRow < rows && neighborColumn >= 0 && neighborColumn < columns && !(i == 0 && j == 0))
+            if (neighborRow >= 0 && neighborRow < rows && neighborColumn >= 0 && neighborColumn < cols && !(i == 0 && j == 0))
 
               if (cells[neighborRow][neighborColumn].isAlive())  {
                     counter++;
@@ -28,7 +29,7 @@ int World::countNeighbors(int row, int column)
     return counter;
 }
 
-int World::countNeighborsBySpecies(int row, int column, int species)
+int World::countNeighborsBySpecies(int row, int col, int species)
 {
     int counter = 0;
 
@@ -36,9 +37,9 @@ int World::countNeighborsBySpecies(int row, int column, int species)
         for (int j = -1; j <= 1; j++)   {
 
            int neighborRow = row + i;
-           int neighborColumn = column + j;
+           int neighborColumn = col + j;
 
-      if (neighborRow >= 0 && neighborRow < rows && neighborColumn >= 0 && neighborColumn < columns && !(i == 0 && j == 0))  {
+      if (neighborRow >= 0 && neighborRow < rows && neighborColumn >= 0 && neighborColumn < cols && !(i == 0 && j == 0))  {
             if (cells[neighborRow][neighborColumn].getSpecies() == species) {
                     counter++;
              }
@@ -48,13 +49,13 @@ int World::countNeighborsBySpecies(int row, int column, int species)
     return counter;
 }
 
-int World::predominantSpecies(int row, int column)
+int World::predominantSpecies(int row, int col)
 {
 
-    int species1 = countNeighborsBySpecies(row, column, 1);
-    int species2 = countNeighborsBySpecies(row, column, 2);
-    int species3 = countNeighborsBySpecies(row, column, 3);
-    int species4 = countNeighborsBySpecies(row, column, 4);
+    int species1 = countNeighborsBySpecies(row, col, 1);
+    int species2 = countNeighborsBySpecies(row, col, 2);
+    int species3 = countNeighborsBySpecies(row, col, 3);
+    int species4 = countNeighborsBySpecies(row, col, 4);
 
 
     int highestCount = 0;
@@ -80,11 +81,11 @@ int World::predominantSpecies(int row, int column)
     return predominant;
 }
 
-void World::nextGeneration(Cell nextCells[ROWS][COLUMNS])
+void World::nextGeneration(Cell nextCells[ROWS][COLS])
 {
     for (int i = 0; i < rows; i++)
     {
-      for (int j = 0; j < columns; j++)
+      for (int j = 0; j < cols; j++)
       {
       int neighbors = countNeighbors(i, j);
 
@@ -125,4 +126,74 @@ void World::nextGeneration(Cell nextCells[ROWS][COLUMNS])
             }
         }
     }
+}
+
+
+
+int World::getCols() const{
+    return cols;
+}
+
+int World::getRows() const{
+    return rows;
+}
+
+int World::getGeneration() const{
+    return generation;
+}
+
+int World::getCellSpecies(int row, int cols) const{
+    return cells[row][cols].getSpecies();
+}
+
+bool World::seedManual(int row, int col, int species){
+    if (row < 0 || col < 0 || row >= getRows() || col >= getCols()) {
+        return false;
+    }
+    
+    if (species < 0 || species > 4) {
+        return false;
+    }
+    
+    cells[row][col].setSpecies(species);
+    return true;
+    
+}
+
+bool World::seedRandom(float density){
+    if (density < 0 || density > 1) {
+        return false;
+    }
+
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            float randomValue = (rand() % 101) / 100.0f;
+            if (randomValue < density) {
+                int randomSpecie = (rand() % 4) + 1;
+                cells[i][j].setSpecies(randomSpecie);
+            }
+        }
+    }
+
+    return true;
+}
+
+bool World::seedPattern(int row, int col, int species){
+    if (row < 0 || col < 0 || (row + 2) >= getRows() || (row + 1) >= getRows() || (col + 2) >= getCols()|| (col + 1) >= getCols()) {
+        return false;
+    }
+    if (species < 0 || species > 4) {
+        return false;
+    }
+
+    cells[row][col+1].setSpecies(species);
+    cells[row+1][col+2].setSpecies(species);
+    cells[row+2][col].setSpecies(species);
+    cells[row+2][col+1].setSpecies(species);
+    cells[row+2][col+2].setSpecies(species);
+
+
+
+    
+    return true;
 }
