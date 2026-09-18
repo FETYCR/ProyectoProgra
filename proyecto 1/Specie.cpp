@@ -3,6 +3,9 @@
 Specie::Specie(){
     this -> index = 0;
     this -> survivalCount = 0;
+    for (int i = 0; i < 8; i++) {
+        survivalSet[i] = 0;
+    }
 }
 
 void Specie::setName(std::string n){

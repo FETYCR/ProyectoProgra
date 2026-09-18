@@ -7,6 +7,12 @@ World::World(int rows, int cols)
     this->rows = rows;
     this->cols = cols;
     this->generation = 0;
+
+    cells = new Cell * [rows];
+    for (int i = 0; i < rows; i++) {
+        cells[i] = new Cell[cols];
+    }
+    Rules.loadOfficialConfig();
 }
 
 int World::countNeighbors(int row, int col)
@@ -60,20 +66,21 @@ int World::predominantSpecies(int row, int col)
 
     int highestCount = 0;
     int predominant = 0;
+    int tieBreaker = Rules.getTieBreaker();
 
-    if (species1 > highestCount) {
+    if (species1 > highestCount || (species1 == highestCount && tieBreaker != 0)) {
         highestCount = species1;
         predominant = 1;
     }
-    if (species2 > highestCount){
+    if (species2 > highestCount || (species2 == highestCount && tieBreaker != 0)){
         highestCount = species2;
         predominant = 2;
     }
-    if (species3 > highestCount)  {
+    if (species3 > highestCount || (species3 == highestCount && tieBreaker != 0))  {
         highestCount = species3;
         predominant = 3;
     }
-    if (species4 > highestCount) {
+    if (species4 > highestCount || (species4 == highestCount && tieBreaker != 0)) {
         highestCount = species4;
         predominant = 4;
     }
@@ -81,8 +88,13 @@ int World::predominantSpecies(int row, int col)
     return predominant;
 }
 
-void World::nextGeneration(Cell nextCells[ROWS][COLS])
-{
+void World::nextGeneration(){
+
+    Cell** nextCells = new Cell * [rows];
+    for (int i = 0; i < rows; i++) {
+        nextCells[i] = new Cell[cols];
+    }
+
     for (int i = 0; i < rows; i++)
     {
       for (int j = 0; j < cols; j++)
@@ -126,6 +138,13 @@ void World::nextGeneration(Cell nextCells[ROWS][COLS])
             }
         }
     }
+    for (int i = 0; i < rows; i++) {
+        delete[] cells[i];
+    }
+    delete[] cells;
+
+    cells = nextCells;
+    generation++;
 }
 
 
@@ -151,7 +170,7 @@ bool World::seedManual(int row, int col, int species){
         return false;
     }
     
-    if (species < 0 || species > 4) {
+    if (species < 1 || species > 4) {
         return false;
     }
     
@@ -182,7 +201,7 @@ bool World::seedPattern(int row, int col, int species){
     if (row < 0 || col < 0 || (row + 2) >= getRows() || (row + 1) >= getRows() || (col + 2) >= getCols()|| (col + 1) >= getCols()) {
         return false;
     }
-    if (species < 0 || species > 4) {
+    if (species < 1 || species > 4) {
         return false;
     }
 
@@ -191,9 +210,41 @@ bool World::seedPattern(int row, int col, int species){
     cells[row+2][col].setSpecies(species);
     cells[row+2][col+1].setSpecies(species);
     cells[row+2][col+2].setSpecies(species);
-
-
-
     
     return true;
+}
+
+int World::countPopulation(int species) const{
+    int counter = 0;
+
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (getCellSpecies(i,j) == species) {
+                counter++;
+            }
+
+        }
+    }
+    return counter;
+}
+
+int World::counterAliveCells() const{
+    int counter = 0;
+
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (cells[i][j].isAlive()) {
+                counter++;
+            }
+        }
+    }
+    return counter;
+}
+
+World::~World(){
+
+    for (int i = 0; i < rows; i++) {
+        delete[] cells[i];
+    }
+    delete[] cells;
 }

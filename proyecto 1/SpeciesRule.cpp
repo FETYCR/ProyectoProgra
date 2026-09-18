@@ -5,7 +5,9 @@ SpeciesRule::SpeciesRule(){
 
     this -> tieBreaker = 0;
     this -> birthCount = 0;
-
+    for (int i = 0; i < 8; i++) {
+        birthSet[i] = 0;
+    }
 }
 
 bool SpeciesRule::canBirth(int aliveNeighbors) const{
@@ -14,9 +16,8 @@ bool SpeciesRule::canBirth(int aliveNeighbors) const{
         if(birthSet[i] == aliveNeighbors){
             return true;
         }
-        return false;
     }
-    
+    return false;
 }
 
 Specie SpeciesRule::getSpecies(int index) const{
@@ -66,7 +67,7 @@ int SpeciesRule::predominantSpecies(int neighborCount[4]) const{
 
 void SpeciesRule::loadOfficialConfig(){
 
-species[0].setName("Elfos");
+species[0].setName("Asuras");
 species[0].setIndex(0);
 int survivalS1[] = {1,2};
 species[0].setSurvivalSet(survivalS1, 2);
@@ -81,7 +82,7 @@ species[2].setIndex(2);
 int survivalS3[] = {2};
 species[2].setSurvivalSet(survivalS3, 1);
 
-species[3].setName("Asuras");
+species[3].setName("Elfos");
 species[3].setIndex(3);
 int survivalS4[] = {1,2,3};
 species[3].setSurvivalSet(survivalS4, 3);
